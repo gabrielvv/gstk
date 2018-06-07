@@ -7,10 +7,10 @@ module.exports = function(grunt) {
 
   // Default task.
   grunt.registerTask('default', ['test']);
-  grunt.registerTask('test', ['jshint', 'karma:unit']);
+  grunt.registerTask('test', ['jshint']);
   grunt.registerTask('dist', ['surround:main', 'uglify', 'surround:banner']);
-  grunt.registerTask('coverage', ['jshint', 'karma:coverage']);
-  grunt.registerTask('junit', ['jshint', 'karma:junit']);
+  grunt.registerTask('coverage', ['jshint']);
+  grunt.registerTask('junit', ['jshint']);
   //
 
   // HACK TO MAKE TRAVIS WORK
