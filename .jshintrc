@@ -19,7 +19,7 @@
   "undef": true,
   "unused": false,
   "globals": {
-    "modularize": false,
+    "modulazer": false,
     "Logger": false,
     "Utilities": false
   }

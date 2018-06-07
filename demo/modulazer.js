@@ -1,15 +1,15 @@
-var A = (function(modularize) {
+var A = (function(modulazer) {
   'use strict';
-  modularize.module('A', []).factory('serviceA', function() {
+  modulazer.module('A', []).factory('serviceA', function() {
     return {
       quux: 'toto'
     };
   });
-})(modularize);
+})(modulazer);
 
-var B = (function(modularize) {
+var B = (function(modulazer) {
   'use strict';
-  modularize.module('B', ['C']).factory('serviceB', [
+  modulazer.module('B', ['C']).factory('serviceB', [
     'serviceC',
     function(serviceC) {
       return {
@@ -17,15 +17,15 @@ var B = (function(modularize) {
       };
     }
   ]);
-})(modularize);
+})(modulazer);
 
-var C = (function(modularize) {
+var C = (function(modulazer) {
   'use strict';
-  modularize.module('C', ['A']).factory('serviceC', function() {
+  modulazer.module('C', ['A']).factory('serviceC', function() {
     return {
       bar: 'bar'
     };
   });
-})(modularize);
+})(modulazer);
 
-modularize.bootstrap();
+modulazer.bootstrap();

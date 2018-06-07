@@ -1,6 +1,6 @@
 /** test framework façon mochajs */
 
-modularize.module('gstk', ['gs']).factory('TestRunner', function(global, _) {
+modulazer.module('gstk', ['gs']).factory('TestRunner', function(global, _) {
   var MODE = {
     NORMAL: 'NORMAL',
     INHIBIT: 'INHIBIT',

@@ -285,7 +285,7 @@ var Graph = (function(logger) {
  * @property {Array.<Module>} _modules
  *
  */
-var modulazer = (function(global, Graph, annotate, utilities) {
+var mdl = (function(global, Graph, annotate, utilities) {
   'use strict';
 
   var isArray = function(a) {
@@ -361,7 +361,7 @@ var modulazer = (function(global, Graph, annotate, utilities) {
     this.values[name] = value;
   };
 
-  var modulazer = {
+  var mdl = {
     _modules: {}
   };
 
@@ -372,7 +372,7 @@ var modulazer = (function(global, Graph, annotate, utilities) {
    * @param {Array.<string>} requires
    *
    */
-  modulazer.module = function(modName, requires) {
+  mdl.module = function(modName, requires) {
     // module registration
     if (requires) {
       var module = new Module(modName, requires);
@@ -413,13 +413,13 @@ var modulazer = (function(global, Graph, annotate, utilities) {
     }
     var args = service.requires.map(function(depName) {
       return (
-        modulazer._depCache[depName] ||
+        mdl._depCache[depName] ||
         instantiateService(mod, mod.factories[depName])
       );
     });
 
     var instance = service.fn.apply(service.fn, args);
-    modulazer._depCache[service.name] = instance;
+    mdl._depCache[service.name] = instance;
     return instance;
   };
 
@@ -429,30 +429,27 @@ var modulazer = (function(global, Graph, annotate, utilities) {
    */
   var instantiateMod = function(mod) {
     for (var key in mod.values) {
-      modulazer._depCache[key] = mod.values[key];
+      mdl._depCache[key] = mod.values[key];
     }
 
     mod.requires.map(function(modName) {
-      return (
-        modulazer._mCache[modName] ||
-        instantiateMod(modulazer._modules[modName])
-      );
+      return mdl._mCache[modName] || instantiateMod(mdl._modules[modName]);
     });
 
     for (var k in mod.factories) {
       instantiateService(mod, mod.factories[k]);
     }
 
-    return (modulazer._mCache[mod.name] = 1);
+    return (mdl._mCache[mod.name] = 1);
   };
 
-  modulazer._depCache = {};
-  modulazer._mCache = {};
+  mdl._depCache = {};
+  mdl._mCache = {};
 
-  modulazer.bootstrap = function(name) {
-    return instantiateMod(modulazer._modules[name]);
+  mdl.bootstrap = function(name) {
+    return instantiateMod(mdl._modules[name]);
   };
 
-  modulazer.id = utilities.getUuid();
-  return modulazer;
+  mdl.id = utilities.getUuid();
+  return mdl;
 })(this, Graph, annotate, utilities);

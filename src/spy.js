@@ -1,4 +1,4 @@
-modularize.module('gstk', ['gs']).factory('spyOn', function() {
+modulazer.module('gstk', ['gs']).factory('spyOn', function() {
   // https://jasmine.github.io/2.4/introduction.html#section-Spies
 
   /**

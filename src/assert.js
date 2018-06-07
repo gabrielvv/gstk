@@ -11,7 +11,7 @@
  *
  * @see {@link http://chaijs.com/api/assert/ chai assert suits}
  */
-modularize.module('gstk', ['gs']).factory('assert', [
+modulazer.module('gstk', ['gs']).factory('assert', [
   'Logger',
   'spyOn',
   '_',
