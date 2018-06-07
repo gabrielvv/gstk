@@ -4,6 +4,12 @@
 [![Build Status](https://travis-ci.org/gabrielvv/gstk.svg?branch=master)](https://travis-ci.org/gabrielvv/gstk)
 [![Coverage Status](https://coveralls.io/repos/gabrielvv/gstk/badge.svg?branch=master)](https://coveralls.io/r/gabrielvv/gstk?branch=master)
 
+## Installation
+
+```sh
+npm i --save gstk
+```
+
 ## References
 
 * https://gsuite-developers.googleblog.com/2015/12/advanced-development-process-with-apps.html
