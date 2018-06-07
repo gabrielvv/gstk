@@ -1,28 +1,31 @@
-var A = (function(modularize){
-  "use strict";
-  modularize.module("A", []).factory("serviceA", function(){
+var A = (function(modularize) {
+  'use strict';
+  modularize.module('A', []).factory('serviceA', function() {
     return {
-      quux: "toto"
-    }
+      quux: 'toto'
+    };
   });
-})(modularize)
+})(modularize);
 
-var B = (function(modularize){
-  "use strict";
-  modularize.module("B", ["C"]).factory("serviceB", ["serviceC", function(serviceC){
-    return {
-      foo: "bar"
+var B = (function(modularize) {
+  'use strict';
+  modularize.module('B', ['C']).factory('serviceB', [
+    'serviceC',
+    function(serviceC) {
+      return {
+        foobar: 'foo' + serviceC.bar
+      };
     }
-  }]);
-})(modularize)
+  ]);
+})(modularize);
 
-var C = (function(modularize){
-  "use strict";
-  modularize.module("C", ["A"]).factory("serviceC", function(){
+var C = (function(modularize) {
+  'use strict';
+  modularize.module('C', ['A']).factory('serviceC', function() {
     return {
-      foo: "bar"
-    }
+      bar: 'bar'
+    };
   });
-})(modularize)
+})(modularize);
 
 modularize.bootstrap();

@@ -1,15 +1,36 @@
-'use strict';
+var logger =
+  (window && window.console.log) || (Logger && Logger.log) || function() {};
+
+var utilities = Utilities || {
+  getUuid: function() {
+    throw 'TODO';
+  }
+};
 
 var annotate = (function() {
+  'use strict';
+
+  var isFunction = function(f) {
+    return 'function' === typeof f;
+  };
+  var forEach = function(arr, fn) {
+    return Array.prototype.forEach.call(arr, fn);
+  };
+  var isArray = function(a) {
+    return a instanceof Array;
+  };
+  var isString = function(s) {
+    return 'string' === typeof s;
+  };
   /**
    * @see https://github.com/angular/angular.js/blob/master/src/Angular.js
    * throw error if the argument is falsy.
    */
   function assertArg(arg, name, reason) {
     if (!arg) {
-      throw ngMinErr(
+      throw new Error(
         'areq',
-        "Argument '{0}' is {1}",
+        'Argument "{0}" is {1}',
         name || '?',
         reason || 'required'
       );
@@ -33,12 +54,6 @@ var annotate = (function() {
     return arg;
   }
 
-  var forEach = function(arr, fn) {
-    return Array.prototype.forEach.call(arr, fn);
-  };
-  var isArray = function(a) {
-    return a instanceof Array;
-  };
   var ARROW_ARG = /^([^(]+?)=>/;
   var FN_ARGS = /^[^(]*\(\s*([^)]*)\)/m;
   var FN_ARG_SPLIT = /,/;
@@ -113,7 +128,7 @@ var annotate = (function() {
  *
  *
  */
-var Graph = (function(global) {
+var Graph = (function(logger) {
   'use strict';
 
   function Graph() {
@@ -166,7 +181,7 @@ var Graph = (function(global) {
   };
   Graph.prototype.traverseDFS = function(vertex, fn) {
     if (!~this.vertices.indexOf(vertex)) {
-      return console.log('Vertex not found');
+      throw new Error('Vertex not found');
     }
     var visited = [];
     this._traverseDFS(vertex, visited, fn);
@@ -184,7 +199,7 @@ var Graph = (function(global) {
   };
   Graph.prototype.traverseBFS = function(vertex, fn) {
     if (!~this.vertices.indexOf(vertex)) {
-      return console.log('Vertex not found');
+      throw new Error('Vertex not found');
     }
     var queue = [];
     queue.push(vertex);
@@ -204,7 +219,7 @@ var Graph = (function(global) {
   };
   Graph.prototype.pathFromTo = function(vertexSource, vertexDestination) {
     if (!~this.vertices.indexOf(vertexSource)) {
-      return console.log('Vertex not found');
+      throw new Error('Vertex not found');
     }
     var queue = [];
     queue.push(vertexSource);
@@ -235,7 +250,7 @@ var Graph = (function(global) {
     return path.reverse().join('-');
   };
   Graph.prototype.print = function() {
-    (console.log || Logger.log)(
+    logger(
       this.vertices
         .map(function(vertex) {
           return (vertex + ' -> ' + this.edges[vertex].join(', ')).trim();
@@ -245,7 +260,7 @@ var Graph = (function(global) {
   };
 
   return Graph;
-})(this);
+})(logger);
 
 /**
  * @see https://github.com/angular/angular.js/blob/master/src/auto/injector.js
@@ -270,8 +285,12 @@ var Graph = (function(global) {
  * @property {Array.<Module>} _modules
  *
  */
-var modulazer = (function(global, Graph, annotate) {
+var modulazer = (function(global, Graph, annotate, utilities) {
   'use strict';
+
+  var isArray = function(a) {
+    return a instanceof Array;
+  };
 
   /**
    *
@@ -302,7 +321,9 @@ var modulazer = (function(global, Graph, annotate) {
     factory
   ) {
     var self = this;
-    if (this.factories[serviceName]) throw 'already declared';
+    if (this.factories[serviceName]) {
+      throw 'already declared';
+    }
 
     var fn,
       requires = [];
@@ -340,9 +361,6 @@ var modulazer = (function(global, Graph, annotate) {
     this.values[name] = value;
   };
 
-  var $provide = {};
-  var $instantiate = {};
-
   var modulazer = {
     _modules: {}
   };
@@ -376,8 +394,9 @@ var modulazer = (function(global, Graph, annotate) {
     }
 
     // module retrieval
-    if (!this._modules[modName])
+    if (!this._modules[modName]) {
       throw new Error('cannot find module "' + modName + '"');
+    }
     return this._modules[modName];
   };
 
@@ -386,14 +405,13 @@ var modulazer = (function(global, Graph, annotate) {
    *
    */
   var instantiateService = function(mod, service) {
-    if (!mod) throw 'mod undefined';
-    if (!service) throw 'service undefined';
-    Logger.log('instantiateService: ' + service.fqn);
+    if (!mod) {
+      throw 'mod undefined';
+    }
+    if (!service) {
+      throw 'service undefined';
+    }
     var args = service.requires.map(function(depName) {
-      Logger.log('depName: ' + depName);
-      if (modulazer._depCache[depName]) {
-        Logger.log('service ' + depName + ' retrieved from cache');
-      }
       return (
         modulazer._depCache[depName] ||
         instantiateService(mod, mod.factories[depName])
@@ -410,24 +428,19 @@ var modulazer = (function(global, Graph, annotate) {
    *
    */
   var instantiateMod = function(mod) {
-    Logger.log('instantiateMod: ' + mod.name);
-
     for (var key in mod.values) {
       modulazer._depCache[key] = mod.values[key];
     }
 
     mod.requires.map(function(modName) {
-      if (modulazer._mCache[modName]) {
-        Logger.log('mod ' + modName + ' retrieved from cache');
-      }
       return (
         modulazer._mCache[modName] ||
         instantiateMod(modulazer._modules[modName])
       );
     });
 
-    for (var key in mod.factories) {
-      instantiateService(mod, mod.factories[key]);
+    for (var k in mod.factories) {
+      instantiateService(mod, mod.factories[k]);
     }
 
     return (modulazer._mCache[mod.name] = 1);
@@ -440,6 +453,6 @@ var modulazer = (function(global, Graph, annotate) {
     return instantiateMod(modulazer._modules[name]);
   };
 
-  modulazer.id = Utilities.getUuid();
+  modulazer.id = utilities.getUuid();
   return modulazer;
-})(this, Graph, annotate);
+})(this, Graph, annotate, utilities);

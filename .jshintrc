@@ -17,5 +17,10 @@
   "sub": true,
   "trailing": true,
   "undef": true,
-  "unused": true
+  "unused": false,
+  "globals": {
+    "modularize": false,
+    "Logger": false,
+    "Utilities": false
+  }
 }

@@ -13,10 +13,13 @@
  */
 modularize.module('gstk', ['gs']).factory('assert', [
   'Logger',
-  function assertFactory(Logger) {
+  'spyOn',
+  '_',
+  function assertFactory(Logger, spyOn, _) {
     var assert = function(condition, message) {
-      if (!condition)
-        throw myNewError('AssertError', 'Assertion failed :' + message);
+      if (!condition) {
+        throw _.myNewError('AssertError', 'Assertion failed :' + message);
+      }
       return condition;
     };
 
@@ -34,11 +37,17 @@ modularize.module('gstk', ['gs']).factory('assert', [
      */
     assert.equal = function(actual, expected, message, log) {
       var b;
-      if (actual === expected) b = true;
+      if (actual === expected) {
+        b = true;
+      }
 
-      if (typeof actual !== typeof expected) b = false;
+      if (typeof actual !== typeof expected) {
+        b = false;
+      }
 
-      if (actual !== expected) b = false;
+      if (actual !== expected) {
+        b = false;
+      }
 
       if (
         'object' === typeof actual &&
@@ -70,81 +79,88 @@ modularize.module('gstk', ['gs']).factory('assert', [
         }
       }
 
-      if (!b)
-        throw myNewError(
+      if (!b) {
+        throw _.myNewError(
           'AssertError',
           '\tAssertion failed :' +
             (message || actual + '' + ' === ' + (expected + ''))
         );
+      }
       return b;
     };
 
     assert.isDefined = function(actual, message) {
       var b = actual !== undefined;
-      if (!b)
-        throw myNewError(
+      if (!b) {
+        throw _.myNewError(
           'AssertError',
           '\tAssertion failed :' + (message || actual + ' undefined')
         );
+      }
     };
 
     assert.isFunction = function(actual, message) {
       var b = 'function' === typeof actual;
-      if (!b)
-        throw myNewError(
+      if (!b) {
+        throw _.myNewError(
           'AssertError',
           message || '\tAssertion failed :' + actual + ' is a function'
         );
+      }
     };
 
     assert.isObject = function(actual, message) {
       var b = 'object' === typeof actual && !!actual;
-      if (!b)
-        throw myNewError(
+      if (!b) {
+        throw _.myNewError(
           'AssertError',
           message || '\tAssertion failed :' + actual + ' is an object'
         );
+      }
     };
 
     assert.isArray = function(actual, message) {
       var b = Array.isArray(actual);
-      if (!b)
-        throw myNewError(
+      if (!b) {
+        throw _.myNewError(
           'AssertError',
           message || '\tAssertion failed :' + actual + ' is an array'
         );
+      }
     };
 
     assert.throw = function(fn, errorName, args) {
       var b, err, fnResult;
 
       try {
-        fnResult = fn.apply(global, args);
+        fnResult = fn.apply(null, args);
       } catch (e) {
         err = e;
         b = errorName == assert.AnyError || err.name === errorName;
       }
 
-      if (!b || !err)
-        throw myNewError(
+      if (!b || !err) {
+        throw _.myNewError(
           'AssertError',
           '\tAssertion failed :' + fn + ' does not throw ' + errorName,
           {
-            return_value: fnResult,
+            returnValue: fnResult,
             message: null
           }
         );
+      }
 
       return {
-        return_value: fnResult,
+        returnValue: fnResult,
         message: err.name + ' thrown'
       };
     };
 
     //https://jasmine.github.io/2.4/introduction.html#section-Spies
     assert.hasBeenCalled = function(fn) {
+      var spy = {};
       try {
-        var spy = spyOn.retrieveSpy(fn);
+        spy = spyOn.retrieveSpy(fn);
       } catch (e) {
         //      Logger.log("InternalError");
         assert(!e, 'InternalError');
@@ -153,8 +169,9 @@ modularize.module('gstk', ['gs']).factory('assert', [
     };
 
     assert.hasBeenCalledTimes = function(fn, times) {
+      var spy = {};
       try {
-        var spy = spyOn.retrieveSpy(fn);
+        spy = spyOn.retrieveSpy(fn);
       } catch (e) {
         assert(!e, 'InternalError');
       }
@@ -179,14 +196,17 @@ modularize.module('gstk', ['gs']).factory('assert', [
     assert.not = function(condition, message) {
       var err;
       try {
-        assert.apply(global, arguments);
+        assert.apply(null, arguments);
       } catch (e) {
         err = e;
       }
 
-      if (!err) throw myNewError('AssertError', 'Assertion failed :' + message);
-      if (err.message.indexOf('InternalError') >= 0)
-        throw myNewError('AssertError', 'Assertion failed :' + err.message);
+      if (!err) {
+        throw _.myNewError('AssertError', 'Assertion failed :' + message);
+      }
+      if (err.message.indexOf('InternalError') >= 0) {
+        throw _.myNewError('AssertError', 'Assertion failed :' + err.message);
+      }
     };
 
     /**
@@ -208,26 +228,31 @@ modularize.module('gstk', ['gs']).factory('assert', [
      */
     function notFactory(fn, name) {
       return function() {
-        var err, return_value;
+        var err, data;
         try {
-          var data = fn.apply(
+          data = fn.apply(
             null /* dans ce cas, revient au même avec 'global' */,
             arguments
           );
         } catch (e) {
           err = e;
-          if (err.message.indexOf('InternalError') >= 0)
-            throw myNewError('AssertError', 'Assertion failed :' + err.message);
+          if (err.message.indexOf('InternalError') >= 0) {
+            throw _.myNewError(
+              'AssertError',
+              'Assertion failed :' + err.message
+            );
+          }
           return err.data;
         }
 
-        if (!err)
-          throw myNewError(
+        if (!err) {
+          throw _.myNewError(
             'AssertError',
             'Assertion failed : not.' +
               name +
               (name == 'throw' ? ' - ' + data.message : '')
           );
+        }
         return data;
       };
     } //notFactory
